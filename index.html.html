@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Stopwatch PWA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png" sizes="192x192">
+  <meta name="theme-color" content="#1976d2">
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    #display { font-size: 2.5em; margin-bottom: 20px; }
+    button { font-size: 1.2em; margin: 0 8px; padding: 12px 26px; border: none; background: #1976d2; color: white; border-radius: 6px; cursor: pointer;}
+    button:active { background: #145a86; }
+  </style>
+</head>
+<body>
+  <h1>Simple Stopwatch PWA</h1>
+  <div id="display">00:00:00</div>
+  <button id="start">Start</button>
+  <button id="stop">Stop</button>
+  <button id="reset">Reset</button>
+  <script>
+    let startTime = 0, elapsed = 0, timerInterval;
+    const display = document.getElementById('display');
+    function updateDisplay(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      const centiseconds = String(Math.floor((ms % 1000) / 10)).padStart(2, '0');
+      display.textContent = `${minutes}:${seconds}:${centiseconds}`;
+    }
+    document.getElementById('start').onclick = () => {
+      if (!timerInterval) {
+        startTime = Date.now() - elapsed;
+        timerInterval = setInterval(() => {
+          elapsed = Date.now() - startTime;
+          updateDisplay(elapsed);
+        }, 10);
+      }
+    };
+    document.getElementById('stop').onclick = () => {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    };
+    document.getElementById('reset').onclick = () => {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      elapsed = 0;
+      updateDisplay(0);
+    };
+    updateDisplay(0);
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</body>
+</html>
